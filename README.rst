@@ -9,7 +9,7 @@ django-model-changes allows you to track the state and changes of a model instan
 2. previous_state()
     The state of the instance **after** it was created, saved
     or deleted the last time.
-3. ancient_state()
+3. old_state()
     The previous previous_state(), i.e. the state of the
     instance **before** it was created, saved or deleted the
     last time.
@@ -52,15 +52,15 @@ Quick start
     >>> user.previous_state()
     {'id': 1, 'name': 'Foo Bar'}
 
-    >>> # Get ancient state (state before previous save/create/delete)
-    >>> user.ancient_state()
+    >>> # Get old state (state before previous save/create/delete)
+    >>> user.old_state()
     {'id': None, 'name': ''}
 
     >>> # Get changes from the previous state to the current state
     >>> user.changes()
     {'name': ('Foo Bar', 'I got a new name')}
 
-    >>> # Get changes from the ancient state to the current state
+    >>> # Get changes from the old state to the current state
     >>> user.changes_from_ancient_state()
     {'id': (None, 1), 'name': ('', 'Foo Bar')}
 
@@ -78,12 +78,12 @@ Quick start
     
    >>> def my_callback(sender, instance, **kwargs):
    >>>     # Do something with previous and current state
-   >>>     instance.ancient_state()
+   >>>     instance.old_state()
    >>>     instance.current_state()
 
    >>>     # There is also a convenience method to get
    >>>     # an instance from the previous state
-   >>>     instance.ancient_instance()
+   >>>     instance.old_instance()
 
    >>> post_change.connect(my_callback, User)
 

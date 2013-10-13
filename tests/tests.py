@@ -7,7 +7,7 @@ class ChangesMixinBeforeAndCurrentTestCase(TestCase):
     def test_empty(self):
         user = User()
 
-        self.assertDictContainsSubset({'id': None, 'name': ''}, user.ancient_state())
+        self.assertDictContainsSubset({'id': None, 'name': ''}, user.old_state())
         self.assertDictContainsSubset({'id': None, 'name': ''}, user.previous_state())
         self.assertDictContainsSubset({'id': None, 'name': ''}, user.current_state())
         self.assertEqual({}, user.changes_from_ancient_state())
@@ -16,7 +16,7 @@ class ChangesMixinBeforeAndCurrentTestCase(TestCase):
     def test_new(self):
         user = User(name='Foo Bar')
 
-        self.assertDictContainsSubset({'id': None, 'name': 'Foo Bar'}, user.ancient_state())
+        self.assertDictContainsSubset({'id': None, 'name': 'Foo Bar'}, user.old_state())
         self.assertDictContainsSubset({'id': None, 'name': 'Foo Bar'}, user.previous_state())
         self.assertDictContainsSubset({'id': None, 'name': 'Foo Bar'}, user.current_state())
         self.assertEqual({}, user.changes_from_ancient_state())
@@ -26,7 +26,7 @@ class ChangesMixinBeforeAndCurrentTestCase(TestCase):
         user = User()
         user.name = 'Foo Bar'
 
-        self.assertDictContainsSubset({'id': None, 'name': ''}, user.ancient_state())
+        self.assertDictContainsSubset({'id': None, 'name': ''}, user.old_state())
         self.assertDictContainsSubset({'id': None, 'name': ''}, user.previous_state())
         self.assertDictContainsSubset({'id': None, 'name': 'Foo Bar'}, user.current_state())
         self.assertEqual({'name': ('', 'Foo Bar')}, user.changes_from_ancient_state())
@@ -36,14 +36,14 @@ class ChangesMixinBeforeAndCurrentTestCase(TestCase):
         user = User(name='Foo Bar')
         user.save()
 
-        self.assertDictContainsSubset({'id': None, 'name': 'Foo Bar'}, user.ancient_state())
+        self.assertDictContainsSubset({'id': None, 'name': 'Foo Bar'}, user.old_state())
         self.assertDictContainsSubset({'id': 1, 'name': 'Foo Bar'}, user.previous_state())
         self.assertDictContainsSubset({'id': 1, 'name': 'Foo Bar'}, user.current_state())
 
         user = User.objects.filter(pk=user.pk)[0]
         user.name = 'My Real Name'
 
-        self.assertDictContainsSubset({'id': 1, 'name': 'Foo Bar'}, user.ancient_state())
+        self.assertDictContainsSubset({'id': 1, 'name': 'Foo Bar'}, user.old_state())
         self.assertDictContainsSubset({'id': 1, 'name': 'Foo Bar'}, user.previous_state())
         self.assertDictContainsSubset({'id': 1, 'name': 'My Real Name'}, user.current_state())
         self.assertEqual({'name': ('Foo Bar', 'My Real Name')}, user.changes_from_ancient_state())
@@ -57,7 +57,7 @@ class ChangesMixinBeforeAndCurrentTestCase(TestCase):
 
         pk = user.pk
 
-        self.assertDictContainsSubset({'id': None, 'name': ''}, user.ancient_state())
+        self.assertDictContainsSubset({'id': None, 'name': ''}, user.old_state())
         self.assertDictContainsSubset({'id': pk, 'name': 'Foo Bar'}, user.previous_state())
         self.assertDictContainsSubset({'id': pk, 'name': 'My Real Name'}, user.current_state())
         self.assertDictEqual({'id': (None, pk), 'name': ('', 'My Real Name')}, user.changes_from_ancient_state())
@@ -66,7 +66,7 @@ class ChangesMixinBeforeAndCurrentTestCase(TestCase):
 
         user.save()
 
-        self.assertDictContainsSubset({'id': pk, 'name': 'Foo Bar'}, user.ancient_state())
+        self.assertDictContainsSubset({'id': pk, 'name': 'Foo Bar'}, user.old_state())
         self.assertDictContainsSubset({'id': pk, 'name': 'My Real Name'}, user.previous_state())
         self.assertDictContainsSubset({'id': pk, 'name': 'My Real Name'}, user.current_state())
         self.assertEqual({'name': ('Foo Bar', 'My Real Name')}, user.changes_from_ancient_state())
@@ -77,7 +77,7 @@ class ChangesMixinBeforeAndCurrentTestCase(TestCase):
         user.name = 'I Changed My Mind'
         user.save()
 
-        self.assertDictContainsSubset({'id': pk, 'name': 'My Real Name'}, user.ancient_state())
+        self.assertDictContainsSubset({'id': pk, 'name': 'My Real Name'}, user.old_state())
         self.assertDictContainsSubset({'id': pk, 'name': 'I Changed My Mind'}, user.current_state())
         self.assertEqual({'name': ('My Real Name', 'I Changed My Mind')}, user.changes_from_ancient_state())
         self.assertTrue(user.was_persisted())

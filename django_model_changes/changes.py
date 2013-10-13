@@ -16,7 +16,7 @@ class ChangesMixin(object):
     2. previous_state()
         The state of the instance **after** it was created, saved
         or deleted the last time.
-    3. ancient_state()
+    3. old_state()
         The previous previous_state(), i.e. the state of the
         instance **before** it was created, saved or deleted the
         last time.
@@ -26,17 +26,17 @@ class ChangesMixin(object):
         1.
         load-from-db---------------------save---------------------now
                     ^                        ^                    ^
-                    ancient state            previous state       current state
+                    old state                previous state       current state
 
         2.
         --------save-------------------delete---------------------now
                     ^                        ^                    ^
-                    ancient state            previous state       current state
+                    old state                previous state       current state
 
         3.
         ------create---------------------save---------------------now
                     ^                        ^                    ^
-                    ancient state            previous state       current state
+                    old state                previous state       current state
 
     """
 
@@ -64,9 +64,9 @@ class ChangesMixin(object):
         # Save current state.
         self._states.append(self.current_state())
 
-        # Drop the previous ancient state
-        # _states == [pre ancient state, ancient state, previous state]
-        #             ^^^^^^^^^^^^^^^^^
+        # Drop the previous old state
+        # _states == [previous old state, old state, previous state]
+        #             ^^^^^^^^^^^^^^^^^^
         if len(self._states) > 2:
             self._states.pop(0)
 
@@ -90,7 +90,7 @@ class ChangesMixin(object):
         else:
             return self._states[0]
 
-    def ancient_state(self):
+    def old_state(self):
         """
         Returns a ``field -> value`` dict of the state of the instance before
         it was created, saved or deleted the last time.
@@ -105,9 +105,9 @@ class ChangesMixin(object):
     def changes_from_ancient_state(self):
         """
         Returns a ``field -> (previous value, current value)`` dict of changes
-        from the ancient state to the current state.
+        from the old state to the current state.
         """
-        return self._changes(self.ancient_state())
+        return self._changes(self.old_state())
 
     def changes(self):
         """
@@ -134,7 +134,7 @@ class ChangesMixin(object):
             True
         """
         pk_name = self._meta.pk.name
-        return bool(self.ancient_state()[pk_name])
+        return bool(self.old_state()[pk_name])
 
     def is_persisted(self):
         """
@@ -155,11 +155,11 @@ class ChangesMixin(object):
         """
         return bool(self.pk)
 
-    def ancient_instance(self):
+    def old_instance(self):
         """
-        Returns an instance of this model in its ancient state.
+        Returns an instance of this model in its old state.
         """
-        return self.__class__(**self.ancient_state())
+        return self.__class__(**self.old_state())
 
     def previous_instance(self):
         """
