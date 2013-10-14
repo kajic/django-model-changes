@@ -8,8 +8,9 @@ DELETE = 1
 
 class ChangesMixin(object):
     """
-    ChangesMixin keeps track of changes for model instances. It allows you to
-    retrieve the following states from an instance:
+    ChangesMixin keeps track of changes for model instances.
+
+    It allows you to retrieve the following states from an instance:
 
     1. current_state()
         The current state of the instance.
@@ -21,22 +22,42 @@ class ChangesMixin(object):
         instance **before** it was created, saved or deleted the
         last time.
 
-    Examples::
+    It also provides convenience methods to get changes between states:
 
-        1.
-        load-from-db---------------------save---------------------now
-                    ^                        ^                    ^
-                    old state                previous state       current state
+    1. changes()
+        Changes from previous_state to current_state.
+    2. previous_changes()
+        Changes from old_state to previous_state.
+    3. old_changes()
+        Changes from old_state to current_state.
 
-        2.
-        --------save-------------------delete---------------------now
-                    ^                        ^                    ^
-                    old state                previous state       current state
+    And the following methods to determine if an instance was/is persisted in
+    the database:
 
-        3.
-        ------create---------------------save---------------------now
-                    ^                        ^                    ^
-                    old state                previous state       current state
+    1. was_persisted()
+        Was the instance persisted in its old state.
+    2. is_persisted()
+        Is the instance is_persisted in its current state.
+
+    This schematic tries to illustrate how these methods relate to
+    each other::
+
+
+        after create/save/delete            after save/delete                  now
+        |                                   |                                  |
+        .-----------------------------------.----------------------------------.
+        |\                                  |\                                 |\
+        | \                                 | \                                | \
+        |  old_state()                      |  previous_state()                |  current_state()
+        |                                   |                                  |
+        |-----------------------------------|----------------------------------|
+        |  previous_changes() (prev - old)  |  changes() (cur - prev)          |
+        |-----------------------------------|----------------------------------|
+        |                      old_changes()  (cur - old)                      |
+        .-----------------------------------|----------------------------------.
+         \                                                                      \
+          \                                                                      \
+           was_persisted()                                                        is_persisted()
 
     """
 
@@ -83,7 +104,7 @@ class ChangesMixin(object):
     def previous_state(self):
         """
         Returns a ``field -> value`` dict of the state of the instance after it
-        was created, saved or deleted the last time.
+        was created, saved or deleted the previous time.
         """
         if len(self._states) > 1:
             return self._states[1]
@@ -92,9 +113,9 @@ class ChangesMixin(object):
 
     def old_state(self):
         """
-        Returns a ``field -> value`` dict of the state of the instance before
-        it was created, saved or deleted the last time.
-        You can also think of this as the previous previous_state().
+        Returns a ``field -> value`` dict of the state of the instance after
+        it was created, saved or deleted the previous previous time. Returns
+        the previous state if there is no previous previous state.
         """
         return self._states[0]
 
@@ -124,7 +145,7 @@ class ChangesMixin(object):
 
     def was_persisted(self):
         """
-        Returns true if the instance was persisted (saved) in its ancient
+        Returns true if the instance was persisted (saved) in its old
         state.
 
         Examples::
@@ -169,7 +190,7 @@ class ChangesMixin(object):
 
     def previous_instance(self):
         """
-        Returns an isntance of this model in its previou state.
+        Returns an instance of this model in its previous state.
         """
         return self.__class__(**self.previous_state())
 
