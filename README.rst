@@ -4,16 +4,6 @@ django-model-changes
 
 django-model-changes allows you to track the state and changes of a model instance:
 
-1. current_state()
-    The current state of the instance.
-2. previous_state()
-    The state of the instance **after** it was created, saved
-    or deleted the last time.
-3. old_state()
-    The previous previous_state(), i.e. the state of the
-    instance **before** it was created, saved or deleted the
-    last time.
-
 Quick start
 -----------
 
