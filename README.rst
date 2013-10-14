@@ -123,7 +123,7 @@ This schematic tries to illustrate how these methods relate to each other::
     |  previous_changes() (prev - old)  |  changes() (cur - prev)          |
     |-----------------------------------|----------------------------------|
     |                      old_changes()  (cur - old)                      |
-    .-----------------------------------|----------------------------------.
+    .----------------------------------------------------------------------.
      \                                                                      \
       \                                                                      \
        was_persisted()                                                        is_persisted()
