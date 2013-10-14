@@ -11,14 +11,14 @@ Quick start
 
     pip install django-model-changes
 
-1. Add "django_model_changes" to your INSTALLED_APPS setting like this::
+2. Add "django_model_changes" to your INSTALLED_APPS setting like this::
 
     INSTALLED_APPS = (
         ...
         'django_model_changes',
     )
 
-2. Add the `ChangesMixin` to your model::
+3. Add the `ChangesMixin` to your model::
 
     >>> from django.db import models
     >>> from django_model_changes import ChangesMixin
@@ -26,7 +26,7 @@ Quick start
     >>> class User(ChangesMixin, models.Model):
     >>>     name = models.CharField(max_length=100)
 
-3. Get instance changes::
+4. Get instance changes::
 
     >>> user = User()
     >>> user.name = 'Foo Bar'
@@ -62,7 +62,7 @@ Quick start
     >>> user.is_persisted()
     True
 
-4. Listen for changes::
+5. Listen for changes::
         
    >>> from django_model_changes import post_change
     
