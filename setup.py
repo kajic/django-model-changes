@@ -8,7 +8,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='django-model-changes',
-    version='0.11',
+    version='0.12',
     packages=find_packages(exclude=['tests']),
     license='MIT License',
     description='django-model-changes allows you to track model instance changes.',
