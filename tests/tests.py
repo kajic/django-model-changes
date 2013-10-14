@@ -10,7 +10,7 @@ class ChangesMixinBeforeAndCurrentTestCase(TestCase):
         self.assertDictContainsSubset({'id': None, 'name': ''}, user.old_state())
         self.assertDictContainsSubset({'id': None, 'name': ''}, user.previous_state())
         self.assertDictContainsSubset({'id': None, 'name': ''}, user.current_state())
-        self.assertEqual({}, user.changes_from_ancient_state())
+        self.assertEqual({}, user.old_changes())
         self.assertEqual({}, user.changes())
 
     def test_new(self):
@@ -19,7 +19,7 @@ class ChangesMixinBeforeAndCurrentTestCase(TestCase):
         self.assertDictContainsSubset({'id': None, 'name': 'Foo Bar'}, user.old_state())
         self.assertDictContainsSubset({'id': None, 'name': 'Foo Bar'}, user.previous_state())
         self.assertDictContainsSubset({'id': None, 'name': 'Foo Bar'}, user.current_state())
-        self.assertEqual({}, user.changes_from_ancient_state())
+        self.assertEqual({}, user.old_changes())
         self.assertEqual({}, user.changes())
 
     def test_change_from_new(self):
@@ -29,7 +29,7 @@ class ChangesMixinBeforeAndCurrentTestCase(TestCase):
         self.assertDictContainsSubset({'id': None, 'name': ''}, user.old_state())
         self.assertDictContainsSubset({'id': None, 'name': ''}, user.previous_state())
         self.assertDictContainsSubset({'id': None, 'name': 'Foo Bar'}, user.current_state())
-        self.assertEqual({'name': ('', 'Foo Bar')}, user.changes_from_ancient_state())
+        self.assertEqual({'name': ('', 'Foo Bar')}, user.old_changes())
         self.assertEqual({'name': ('', 'Foo Bar')}, user.changes())
 
     def test_change_from_db(self):
@@ -46,7 +46,7 @@ class ChangesMixinBeforeAndCurrentTestCase(TestCase):
         self.assertDictContainsSubset({'id': 1, 'name': 'Foo Bar'}, user.old_state())
         self.assertDictContainsSubset({'id': 1, 'name': 'Foo Bar'}, user.previous_state())
         self.assertDictContainsSubset({'id': 1, 'name': 'My Real Name'}, user.current_state())
-        self.assertEqual({'name': ('Foo Bar', 'My Real Name')}, user.changes_from_ancient_state())
+        self.assertEqual({'name': ('Foo Bar', 'My Real Name')}, user.old_changes())
 
     def test_save(self):
         user = User()
@@ -60,7 +60,7 @@ class ChangesMixinBeforeAndCurrentTestCase(TestCase):
         self.assertDictContainsSubset({'id': None, 'name': ''}, user.old_state())
         self.assertDictContainsSubset({'id': pk, 'name': 'Foo Bar'}, user.previous_state())
         self.assertDictContainsSubset({'id': pk, 'name': 'My Real Name'}, user.current_state())
-        self.assertDictEqual({'id': (None, pk), 'name': ('', 'My Real Name')}, user.changes_from_ancient_state())
+        self.assertDictEqual({'id': (None, pk), 'name': ('', 'My Real Name')}, user.old_changes())
         self.assertFalse(user.was_persisted())
         self.assertTrue(user.is_persisted())
 
@@ -69,7 +69,7 @@ class ChangesMixinBeforeAndCurrentTestCase(TestCase):
         self.assertDictContainsSubset({'id': pk, 'name': 'Foo Bar'}, user.old_state())
         self.assertDictContainsSubset({'id': pk, 'name': 'My Real Name'}, user.previous_state())
         self.assertDictContainsSubset({'id': pk, 'name': 'My Real Name'}, user.current_state())
-        self.assertEqual({'name': ('Foo Bar', 'My Real Name')}, user.changes_from_ancient_state())
+        self.assertEqual({'name': ('Foo Bar', 'My Real Name')}, user.old_changes())
         self.assertTrue(user.was_persisted())
         self.assertTrue(user.is_persisted())
 
@@ -79,7 +79,7 @@ class ChangesMixinBeforeAndCurrentTestCase(TestCase):
 
         self.assertDictContainsSubset({'id': pk, 'name': 'My Real Name'}, user.old_state())
         self.assertDictContainsSubset({'id': pk, 'name': 'I Changed My Mind'}, user.current_state())
-        self.assertEqual({'name': ('My Real Name', 'I Changed My Mind')}, user.changes_from_ancient_state())
+        self.assertEqual({'name': ('My Real Name', 'I Changed My Mind')}, user.old_changes())
         self.assertTrue(user.was_persisted())
         self.assertTrue(user.is_persisted())
 

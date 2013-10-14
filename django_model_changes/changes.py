@@ -98,23 +98,29 @@ class ChangesMixin(object):
         """
         return self._states[0]
 
-    def _changes(self, other):
-        current = self.current_state()
+    def _changes(self, other, current):
         return dict([(key, (was, current[key])) for key, was in other.iteritems() if was != current[key]])
-
-    def changes_from_ancient_state(self):
-        """
-        Returns a ``field -> (previous value, current value)`` dict of changes
-        from the old state to the current state.
-        """
-        return self._changes(self.old_state())
 
     def changes(self):
         """
         Returns a ``field -> (previous value, current value)`` dict of changes
         from the previous state to the current state.
         """
-        return self._changes(self.previous_state())
+        return self._changes(self.previous_state(), self.current_state())
+
+    def old_changes(self):
+        """
+        Returns a ``field -> (previous value, current value)`` dict of changes
+        from the old state to the current state.
+        """
+        return self._changes(self.old_state(), self.current_state())
+
+    def previous_changes(self):
+        """
+        Returns a ``field -> (previous value, current value)`` dict of changes
+        from the old state to the previous state.
+        """
+        return self._changes(self.old_state(), self.previous_state())
 
     def was_persisted(self):
         """
