@@ -131,7 +131,7 @@ This schematic tries to illustrate how these methods relate to each other::
 Limitations
 -----------
 
-django-current-changes doesn't currently track foreign key fields. I plan to add support for it soon.
+django-current-changes doesn't track foreign key fields. I plan to add support for it soon.
 
 Documentation
 -------------
