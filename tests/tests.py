@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from .models import User
+from .models import User, Article
 
 
 class ChangesMixinBeforeAndCurrentTestCase(TestCase):
@@ -104,3 +104,65 @@ class ChangesMixinBeforeAndCurrentTestCase(TestCase):
         user.delete()
         self.assertTrue(user.was_persisted())
         self.assertFalse(user.is_persisted())
+
+    def test_foreign_key(self):
+        me = User()
+        me.save()
+
+        you = User()
+        you.save()
+
+        article = Article(title='Hello World', user=me)
+
+        self.assertDictContainsSubset({'id': None, 'user': me}, article.old_state())
+        self.assertDictContainsSubset({'id': None, 'user': me}, article.previous_state())
+        self.assertDictContainsSubset({'id': None, 'user': me}, article.current_state())
+
+        article.save()
+
+        self.assertDictContainsSubset({'id': None, 'user': me}, article.old_state())
+        self.assertDictContainsSubset({'id': article.pk, 'user': me}, article.previous_state())
+        self.assertDictContainsSubset({'id': article.pk, 'user': me}, article.current_state())
+
+        article.user = you
+
+        self.assertDictContainsSubset({'id': None, 'user': me}, article.old_state())
+        self.assertDictContainsSubset({'id': article.pk, 'user': me}, article.previous_state())
+        self.assertDictContainsSubset({'id': article.pk, 'user': you}, article.current_state())
+
+        article.save()
+
+        self.assertDictContainsSubset({'id': article.pk, 'user': me}, article.old_state())
+        self.assertDictContainsSubset({'id': article.pk, 'user': you}, article.previous_state())
+        self.assertDictContainsSubset({'id': article.pk, 'user': you}, article.current_state())
+
+    def test_foreign_key_id(self):
+        me = User()
+        me.save()
+
+        you = User()
+        you.save()
+
+        article = Article(title='Hello World', user_id=me.id)
+
+        self.assertDictContainsSubset({'id': None, 'user_id': me.pk}, article.old_state())
+        self.assertDictContainsSubset({'id': None, 'user_id': me.pk}, article.previous_state())
+        self.assertDictContainsSubset({'id': None, 'user_id': me.pk}, article.current_state())
+
+        article.save()
+
+        self.assertDictContainsSubset({'id': None, 'user_id': me.pk}, article.old_state())
+        self.assertDictContainsSubset({'id': article.pk, 'user_id': me.pk}, article.previous_state())
+        self.assertDictContainsSubset({'id': article.pk, 'user_id': me.pk}, article.current_state())
+
+        article.user = you
+
+        self.assertDictContainsSubset({'id': None, 'user_id': me.pk}, article.old_state())
+        self.assertDictContainsSubset({'id': article.pk, 'user_id': me.pk}, article.previous_state())
+        self.assertDictContainsSubset({'id': article.pk, 'user_id': you.pk}, article.current_state())
+
+        article.save()
+
+        self.assertDictContainsSubset({'id': article.pk, 'user_id': me.pk}, article.old_state())
+        self.assertDictContainsSubset({'id': article.pk, 'user_id': you.pk}, article.previous_state())
+        self.assertDictContainsSubset({'id': article.pk, 'user_id': you.pk}, article.current_state())
