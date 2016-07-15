@@ -1,4 +1,4 @@
-from django.db.models import signals
+from mongoengine import signals
 
 from .signals import post_change
 
@@ -62,18 +62,18 @@ class ChangesMixin(object):
     """
 
     def __init__(self, *args, **kwargs):
-        super(ChangesMixin, self).__init__(*args, **kwargs)
-
         self._states = []
         self._save_state(new_instance=True)
+        
+        super(ChangesMixin, self).__init__(*args, **kwargs)
 
         signals.post_save.connect(
             _post_save, sender=self.__class__,
-            dispatch_uid='django-changes-%s' % self.__class__.__name__
+            # dispatch_uid='django-changes-%s' % self.__class__.__name__
         )
         signals.post_delete.connect(
             _post_delete, sender=self.__class__,
-            dispatch_uid='django-changes-%s' % self.__class__.__name__
+            # dispatch_uid='django-changes-%s' % self.__class__.__name__
         )
 
     def _save_state(self, new_instance=False, event_type='save'):
@@ -99,10 +99,7 @@ class ChangesMixin(object):
         """
         Returns a ``field -> value`` dict of the current state of the instance.
         """
-        field_names = set()
-        [field_names.add(f.name) for f in self._meta.local_fields]
-        [field_names.add(f.attname) for f in self._meta.local_fields]
-        return dict([(field_name, getattr(self, field_name)) for field_name in field_names])
+        return self.attributes()
 
     def previous_state(self):
         """
@@ -123,7 +120,12 @@ class ChangesMixin(object):
         return self._states[0]
 
     def _changes(self, other, current):
-        return dict([(key, (was, current[key])) for key, was in other.iteritems() if was != current[key]])
+        res = {}
+        for key in set(other.keys()) | set(current.keys()):
+            was, now = other.get(key), current.get(key)
+            if was != now:
+                res[key] = (was, now)
+        return res
 
     def changes(self):
         """
@@ -198,9 +200,9 @@ class ChangesMixin(object):
         return self.__class__(**self.previous_state())
 
 
-def _post_save(sender, instance, **kwargs):
-    instance._save_state(new_instance=False, event_type=SAVE)
+def _post_save(sender, **kwargs):
+    kwargs['document']._save_state(new_instance=False, event_type=SAVE)
 
 
-def _post_delete(sender, instance, **kwargs):
-    instance._save_state(new_instance=False, event_type=DELETE)
+def _post_delete(sender, **kwargs):
+    kwargs['document']._save_state(new_instance=False, event_type=DELETE)
