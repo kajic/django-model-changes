@@ -63,6 +63,10 @@ class ChangesMixin(object):
 
     def __init__(self, *args, **kwargs):
         self._states = []
+        
+        if not hasattr(self, '_data'):
+            self._data = {}
+            
         self._save_state(new_instance=True)
         
         super(ChangesMixin, self).__init__(*args, **kwargs)
@@ -99,7 +103,7 @@ class ChangesMixin(object):
         """
         Returns a ``field -> value`` dict of the current state of the instance.
         """
-        return self.attributes()
+        return dict(self._data)
 
     def previous_state(self):
         """
