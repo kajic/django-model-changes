@@ -66,10 +66,14 @@ class ChangesMixin(object):
         
         if not hasattr(self, '_data'):
             self._data = {}
-            
-        self._save_state(new_instance=True)
-        
+
+        if not 'id' in kwargs:
+            self._save_state(new_instance=True)
+
         super(ChangesMixin, self).__init__(*args, **kwargs)
+
+        if self.id:
+            self._save_state()
 
         signals.post_save.connect(
             _post_save, sender=self.__class__,
