@@ -1,3 +1,5 @@
+import copy
+
 from mongoengine import signals
 
 from .signals import post_change
@@ -107,7 +109,7 @@ class ChangesMixin(object):
         """
         Returns a ``field -> value`` dict of the current state of the instance.
         """
-        return dict(self._data)
+        return copy.deepcopy(dict(self._data))
 
     def previous_state(self):
         """
