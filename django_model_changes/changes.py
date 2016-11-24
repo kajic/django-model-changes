@@ -1,7 +1,5 @@
 import copy
-
 from mongoengine import signals
-
 from .signals import post_change
 
 SAVE = 0
@@ -75,7 +73,7 @@ class ChangesMixin(object):
         super(ChangesMixin, self).__init__(*args, **kwargs)
 
         if self.id:
-            self._save_state()
+            self._save_state(new_instance=True)
 
         signals.post_save.connect(
             _post_save, sender=self.__class__,
@@ -109,7 +107,15 @@ class ChangesMixin(object):
         """
         Returns a ``field -> value`` dict of the current state of the instance.
         """
-        return copy.deepcopy(dict(self._data))
+        def _try_copy(v):
+            if isinstance(v, (list, dict)): return copy.copy(v) # Shallow copy
+            return v
+        
+        # First level shallow copy.
+        return {k: _try_copy(v) for k, v in self._data.iteritems()}
+        
+        # The fastest but in-accurate version.
+        # return dict(self._data)
 
     def previous_state(self):
         """
