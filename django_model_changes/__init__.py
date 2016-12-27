@@ -1,2 +1,2 @@
-from changes import ChangesMixin
-from signals import post_change
+from .changes import ChangesMixin
+from .signals import post_change
