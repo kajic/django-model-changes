@@ -214,6 +214,12 @@ class ChangesMixin(object):
         Returns an instance of this model in its previous state.
         """
         return self.__class__(**self.previous_state())
+        
+    def reload(self, *args, **kwargs):
+        res = super(ChangesMixin, self).reload(*args, **kwargs)
+        self._states = []
+        self._save_state(new_instance=True)
+        return res
 
 
 def _post_save(sender, **kwargs):
