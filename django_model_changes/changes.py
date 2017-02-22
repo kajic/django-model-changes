@@ -101,7 +101,7 @@ class ChangesMixin(object):
 
         # Send post_change signal unless this is a new instance
         if not new_instance:
-            post_change.send(sender=self.__class__, instance=self)
+            post_change.send(sender=self.__class__, instance=self, changes=self.old_changes())
 
     def current_state(self):
         """
