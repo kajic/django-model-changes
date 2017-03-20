@@ -84,7 +84,7 @@ class ChangesMixin(object):
             # dispatch_uid='django-changes-%s' % self.__class__.__name__
         )
 
-    def _save_state(self, new_instance=False, event_type='save'):
+    def _save_state(self, new_instance=False, event_type='save', **kwargs):
         # Pipe the pk on deletes so that a correct snapshot of the current
         # state can be taken.
         if event_type == DELETE:
@@ -101,7 +101,7 @@ class ChangesMixin(object):
 
         # Send post_change signal unless this is a new instance
         if not new_instance:
-            post_change.send(sender=self.__class__, instance=self, changes=self.old_changes())
+            post_change.send(sender=self.__class__, instance=self, changes=self.old_changes(), **kwargs)
 
     def current_state(self):
         """
@@ -223,8 +223,8 @@ class ChangesMixin(object):
 
 
 def _post_save(sender, **kwargs):
-    kwargs['document']._save_state(new_instance=False, event_type=SAVE)
+    kwargs['document']._save_state(new_instance=False, event_type=SAVE, **kwargs)
 
 
 def _post_delete(sender, **kwargs):
-    kwargs['document']._save_state(new_instance=False, event_type=DELETE)
+    kwargs['document']._save_state(new_instance=False, event_type=DELETE, **kwargs)
