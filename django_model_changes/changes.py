@@ -1,5 +1,7 @@
 import copy
 from mongoengine import signals
+from mongoengine.base.proxy import DocumentProxy
+
 from .signals import post_change
 
 SAVE = 0
@@ -108,6 +110,8 @@ class ChangesMixin(object):
         Returns a ``field -> value`` dict of the current state of the instance.
         """
         def _try_copy(v):
+            if type(v) is DocumentProxy:
+                return v
             if isinstance(v, (list, dict)): return copy.copy(v) # Shallow copy
             return v
         
