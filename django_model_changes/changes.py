@@ -87,6 +87,9 @@ class ChangesMixin(object):
         )
 
     def _save_state(self, new_instance=False, event_type='save', **kwargs):
+        if "Historical" in self.__class__.__name__:
+            return
+        
         # Pipe the pk on deletes so that a correct snapshot of the current
         # state can be taken.
         if event_type == DELETE:
