@@ -12,12 +12,18 @@ class ChangesMixin(object):
 
     def __init__(self, *args, **kwargs):
         super(ChangesMixin, self).__init__(*args, **kwargs)
-        signals.post_save.connect(
-            _post_save, sender=self.__class__,
-        )
-        signals.post_delete.connect(
-            _post_delete, sender=self.__class__,
-        )
+        self.__class__.register_signals()
+        
+    @classmethod
+    def register_signals(cls):
+        if not getattr(cls, 'changes_signal_registered', False):
+            setattr(cls, 'changes_signal_registered', True)
+            signals.post_save.connect(
+                _post_save, sender=cls,
+            )
+            signals.post_delete.connect(
+                _post_delete, sender=cls,
+            )
 
     def _save_state(self, new_instance=False, event_type='save', **kwargs):
         if "Historical" in self.__class__.__name__:
