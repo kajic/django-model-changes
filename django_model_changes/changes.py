@@ -48,8 +48,7 @@ class ChangesMixin(object):
             if field not in ["_id"]:
                 was = _original_values.get(field, None)
                 now = getattr(self, field, None)
-                if was != now:
-                    res[field] = (was, now)
+                res[field] = (was, now)
 
         return res
         
