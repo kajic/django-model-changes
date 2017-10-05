@@ -16,8 +16,9 @@ class ChangesMixin(object):
         
     @classmethod
     def register_signals(cls):
-        if not getattr(cls, 'changes_signal_registered', False):
-            setattr(cls, 'changes_signal_registered', True)
+        key = ('changes_signal_registered_%s' % cls.__name__)
+        if not getattr(cls, key, False):
+            setattr(cls, key, True)
             signals.post_save.connect(
                 _post_save, sender=cls,
             )
