@@ -10,9 +10,9 @@ DELETE = 1
 
 class ChangesMixin(object):
 
-    def __init__(self, *args, **kwargs):
-        super(ChangesMixin, self).__init__(*args, **kwargs)
+    def save(self, *args, **kwargs):
         self.__class__.register_signals()
+        return super(ChangesMixin, self).save(*args, **kwargs)
         
     @classmethod
     def register_signals(cls):
