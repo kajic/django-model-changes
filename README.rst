@@ -2,7 +2,10 @@
 django-model-changes
 ====================
 
-Please note: django-model-changes does not support Python3.0+. A fork is maintained at https://github.com/iansprice/django-model-changes-py3 for Python3.3+ and can be installed via `pip install django-model-changes-py3`. 
+.. image:: https://coveralls.io/repos/github/rinse-inc/django-model-changes/badge.svg?branch=master
+:target: https://coveralls.io/github/rinse-inc/django-model-changes?branch=master
+
+Please note: django-model-changes does not support Python3.0+. A fork is maintained at https://github.com/iansprice/django-model-changes-py3 for Python3.3+ and can be installed via `pip install django-model-changes-py3`.
 
 django-model-changes allows you to track the state and changes of a model instance:
 
@@ -65,9 +68,9 @@ Quick start
     True
 
 5. Listen for changes::
-        
+
    >>> from django_model_changes import post_change
-    
+
    >>> def my_callback(sender, instance, **kwargs):
    >>>     # Do something with previous and current state
    >>>     instance.old_state()
