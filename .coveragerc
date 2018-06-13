@@ -1,0 +1,4 @@
+[run]
+source = django_model_changes
+omit = django_model_changes/tests/*
+branch = 1
