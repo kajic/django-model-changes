@@ -166,3 +166,11 @@ class ChangesMixinBeforeAndCurrentTestCase(TestCase):
         self.assertDictContainsSubset({'id': article.pk, 'user_id': me.pk}, article.old_state())
         self.assertDictContainsSubset({'id': article.pk, 'user_id': you.pk}, article.previous_state())
         self.assertDictContainsSubset({'id': article.pk, 'user_id': you.pk}, article.current_state())
+
+    def test_filter_with_only(self):
+        me = User(name='test name')
+        me.save()
+
+        me_from_filter = User.objects.filter(pk=me.id).only('name').first()
+
+        self.assertDictContainsSubset({'name': me.name}, me_from_filter.current_state())

@@ -109,10 +109,9 @@ class ChangesMixin(object):
         Returns a ``field -> value`` dict of the current state of the instance.
         """
         fields = {}
-        for field in self._meta.local_fields:
-            # It's always safe to access the field attribute name, it refers to simple types that are immediately
-            # available on the instance.
-            fields[field.attname] = getattr(self, field.attname)
+        local_data = self.__dict__
+        for field in self._meta.fields:
+            fields[field.attname] = local_data.get(field.attname)
 
             # Foreign fields require special care because we don't want to trigger a database query when the field is
             # not yet cached.
