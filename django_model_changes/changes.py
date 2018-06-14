@@ -95,14 +95,33 @@ class ChangesMixin(object):
         if not new_instance:
             post_change.send(sender=self.__class__, instance=self)
 
+    def _instance_from_state(self, state):
+        """
+        Creates an instance from a previously saved state.
+        """
+        instance = self.__class__()
+        for key, value in state.items():
+            setattr(instance, key, value)
+        return instance
+
     def current_state(self):
         """
         Returns a ``field -> value`` dict of the current state of the instance.
         """
-        field_names = set()
-        [field_names.add(f.name) for f in self._meta.local_fields]
-        [field_names.add(f.attname) for f in self._meta.local_fields]
-        return dict([(field_name, getattr(self, field_name)) for field_name in field_names])
+        fields = {}
+        for field in self._meta.local_fields:
+            # It's always safe to access the field attribute name, it refers to simple types that are immediately
+            # available on the instance.
+            fields[field.attname] = getattr(self, field.attname)
+
+            # Foreign fields require special care because we don't want to trigger a database query when the field is
+            # not yet cached.
+            if field.rel:
+                descriptor = self.__class__.__dict__[field.name]
+                if hasattr(self, descriptor.cache_name):
+                    fields[field.name] = getattr(self, descriptor.cache_name)
+
+        return fields
 
     def previous_state(self):
         """
@@ -189,13 +208,13 @@ class ChangesMixin(object):
         """
         Returns an instance of this model in its old state.
         """
-        return self.__class__(**self.old_state())
+        return self._instance_from_state(self.old_state())
 
     def previous_instance(self):
         """
         Returns an instance of this model in its previous state.
         """
-        return self.__class__(**self.previous_state())
+        return self._instance_from_state(self.previous_state())
 
 
 def _post_save(sender, instance, **kwargs):
