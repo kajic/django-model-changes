@@ -55,6 +55,9 @@ class ChangesMixin(object):
             if field not in ["_id"]:
                 was = _original_values.get(field, None)
                 now = getattr(self, field, None)
+                # This is to prevent on changes where None goes into an empty list or a dictionary,
+                if was == None and now == []:
+                    continue
                 res[field] = (was, now)
 
         return res
