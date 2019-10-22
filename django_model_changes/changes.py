@@ -46,12 +46,14 @@ class ChangesMixin(object):
             _changed_fields = getattr(self, '_changed_fields', [])
         if _original_values is None:
             _original_values = getattr(self, '_original_values', {})
+
+        _force_changed_fields = getattr(self, '_force_changed_fields', set())
             
         if created:
             _changed_fields = self._data.keys()
 
         res = {}
-        for field in _changed_fields:
+        for field in set(_changed_fields) | _force_changed_fields:
             if field not in ["_id"]:
                 was = _original_values.get(field, None)
                 now = getattr(self, field, None)
