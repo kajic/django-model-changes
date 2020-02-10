@@ -1,2 +1,2 @@
-from changes import ChangesMixin
-from signals import post_change
+from django_model_changes.changes import ChangesMixin
+from django_model_changes.signals import post_change

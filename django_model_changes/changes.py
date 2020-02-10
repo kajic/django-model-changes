@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import copy
 from mongoengine import signals
 from mongoengine.base.proxy import DocumentProxy
@@ -16,7 +17,7 @@ class ChangesMixin(object):
         
     @classmethod
     def register_signals(cls):
-        key = ('changes_signal_registered_%s' % cls.__name__)
+        key = ('changes_signal_registered_{}'.format(cls.__name__))
         if not getattr(cls, key, False):
             setattr(cls, key, True)
             signals.post_save.connect(
@@ -50,7 +51,7 @@ class ChangesMixin(object):
         _force_changed_fields = getattr(self, '_force_changed_fields', set())
             
         if created:
-            _changed_fields = self._data.keys()
+            _changed_fields = list(self._data.keys())
 
         res = {}
         for field in set(_changed_fields) | _force_changed_fields:
