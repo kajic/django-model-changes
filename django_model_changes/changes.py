@@ -7,6 +7,7 @@ from .signals import post_change
 
 SAVE = 0
 DELETE = 1
+EMPTY_COMMIT_FIELD_TYPES = {'DictField', 'ListField', 'EmbeddedDocumentListField'}
 
 
 class ChangesMixin(object):
@@ -59,8 +60,11 @@ class ChangesMixin(object):
                 was = _original_values.get(field, None)
                 now = getattr(self, field, None)
                 # This is to prevent on changes where None goes into an empty list or a dictionary,
-                if was == None and (now == [] or now == {}):
-                    continue
+                field_def = getattr(self.__class__, field, None)
+                if field_def and field_def.__class__.__name__ in EMPTY_COMMIT_FIELD_TYPES:
+                    if (was is None) and (now == [] or now == {}):
+                        if field not in _force_changed_fields:
+                            continue
                 res[field] = (was, now)
 
         return res
