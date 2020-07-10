@@ -69,8 +69,8 @@ class ChangesMixin(object):
 
         return res
         
-    def changes(self):
-        return self._calculate_changes()
+    def changes(self, **kwargs):
+        return self._calculate_changes(**kwargs)
 
 def _post_save(sender, **kwargs):
     kwargs['document']._save_state(new_instance=False, event_type=SAVE, **kwargs)
