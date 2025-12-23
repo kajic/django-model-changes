@@ -1,6 +1,6 @@
 [project]
 name = "django-model-changes"
-version = "1.0.1"
+version = "1.0.2"
 description = "Track model instance changes in Django"
 readme = "README.rst"
 license = "MIT"
