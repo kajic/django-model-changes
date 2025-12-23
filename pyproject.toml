@@ -1,0 +1,63 @@
+[project]
+name = "django-model-changes"
+version = "1.0.0"
+description = "Track model instance changes in Django"
+readme = "README.rst"
+license = "MIT"
+requires-python = ">=3.14"
+authors = [
+    {name = "Robert Kajic", email = "robert@kajic.com"}
+]
+classifiers = [
+    "Environment :: Web Environment",
+    "Framework :: Django",
+    "Framework :: Django :: 5.0",
+    "Framework :: Django :: 5.1",
+    "Framework :: Django :: 6.0",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.14",
+]
+dependencies = [
+    "django>=5.0,<7.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/kajic/django-model-changes"
+Repository = "https://github.com/kajic/django-model-changes"
+
+[build-system]
+requires = ["setuptools>=77.0.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.uv]
+package = true
+
+[tool.setuptools]
+packages = ["django_model_changes"]
+
+[dependency-groups]
+dev = [
+    "black>=25.1.0",
+    "django-stubs>=5.0.0",
+    "pyright>=1.1.0",
+    "pytest>=8.0.0",
+    "pytest-django>=4.9.0",
+    "ruff>=0.8.0",
+]
+
+[tool.black]
+line-length = 100
+target-version = ["py314"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py314"
+
+[tool.ruff.lint]
+# Enable pylint convention rule for import-outside-toplevel (inline imports)
+select = ["PLC0415"]
+
+[tool.django-stubs]
+django_settings_module = "tests.settings"

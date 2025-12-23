@@ -1,0 +1,15 @@
+{
+  "include": [
+    "django_model_changes",
+    "tests",
+    "docs"
+  ],
+  "exclude": [
+    "**/__pycache__/**",
+    ".venv"
+  ],
+  "typeCheckingMode": "standard",
+  "pythonVersion": "3.14",
+  "reportMissingImports": true,
+  "reportMissingTypeStubs": false
+}

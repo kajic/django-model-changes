@@ -1,13 +1,21 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
+
+from django.db import models
 from django.db.models import signals
 
 from .signals import post_change
+
+if TYPE_CHECKING:
+    from django.db.models.options import Options
 
 SAVE = 0
 DELETE = 1
 
 
-class ChangesMixin(object):
-    """
+class ChangesMixin(models.Model):
+    r"""
     ChangesMixin keeps track of changes for model instances.
 
     It allows you to retrieve the following states from an instance:
@@ -61,22 +69,29 @@ class ChangesMixin(object):
 
     """
 
-    def __init__(self, *args, **kwargs):
-        super(ChangesMixin, self).__init__(*args, **kwargs)
+    _states: list[dict[str, Any]]
+
+    class Meta:
+        abstract = True
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
 
         self._states = []
         self._save_state(new_instance=True)
 
         signals.post_save.connect(
-            _post_save, sender=self.__class__,
-            dispatch_uid='django-changes-%s' % self.__class__.__name__
+            _post_save,
+            sender=self.__class__,
+            dispatch_uid=f"django-changes-{self.__class__.__name__}",
         )
         signals.post_delete.connect(
-            _post_delete, sender=self.__class__,
-            dispatch_uid='django-changes-%s' % self.__class__.__name__
+            _post_delete,
+            sender=self.__class__,
+            dispatch_uid=f"django-changes-{self.__class__.__name__}",
         )
 
-    def _save_state(self, new_instance=False, event_type='save'):
+    def _save_state(self, new_instance: bool = False, event_type: str | int = "save") -> None:
         # Pipe the pk on deletes so that a correct snapshot of the current
         # state can be taken.
         if event_type == DELETE:
@@ -95,26 +110,26 @@ class ChangesMixin(object):
         if not new_instance:
             post_change.send(sender=self.__class__, instance=self)
 
-    def current_state(self):
+    def current_state(self) -> dict[str, Any]:
         """
         Returns a ``field -> value`` dict of the current state of the instance.
         """
-        field_names = set()
-        [field_names.add(f.name) for f in self._meta.local_fields]
-        [field_names.add(f.attname) for f in self._meta.local_fields]
-        return dict([(field_name, getattr(self, field_name)) for field_name in field_names])
+        field_names: set[str] = set()
+        for f in self._meta.local_fields:
+            field_names.add(f.name)
+            field_names.add(f.attname)
+        return {field_name: getattr(self, field_name) for field_name in field_names}
 
-    def previous_state(self):
+    def previous_state(self) -> dict[str, Any]:
         """
         Returns a ``field -> value`` dict of the state of the instance after it
         was created, saved or deleted the previous time.
         """
         if len(self._states) > 1:
             return self._states[1]
-        else:
-            return self._states[0]
+        return self._states[0]
 
-    def old_state(self):
+    def old_state(self) -> dict[str, Any]:
         """
         Returns a ``field -> value`` dict of the state of the instance after
         it was created, saved or deleted the previous previous time. Returns
@@ -122,31 +137,33 @@ class ChangesMixin(object):
         """
         return self._states[0]
 
-    def _changes(self, other, current):
-        return dict([(key, (was, current[key])) for key, was in other.iteritems() if was != current[key]])
+    def _changes(
+        self, other: dict[str, Any], current: dict[str, Any]
+    ) -> dict[str, tuple[Any, Any]]:
+        return {key: (was, current[key]) for key, was in other.items() if was != current[key]}
 
-    def changes(self):
+    def changes(self) -> dict[str, tuple[Any, Any]]:
         """
         Returns a ``field -> (previous value, current value)`` dict of changes
         from the previous state to the current state.
         """
         return self._changes(self.previous_state(), self.current_state())
 
-    def old_changes(self):
+    def old_changes(self) -> dict[str, tuple[Any, Any]]:
         """
         Returns a ``field -> (previous value, current value)`` dict of changes
         from the old state to the current state.
         """
         return self._changes(self.old_state(), self.current_state())
 
-    def previous_changes(self):
+    def previous_changes(self) -> dict[str, tuple[Any, Any]]:
         """
         Returns a ``field -> (previous value, current value)`` dict of changes
         from the old state to the previous state.
         """
         return self._changes(self.old_state(), self.previous_state())
 
-    def was_persisted(self):
+    def was_persisted(self) -> bool:
         """
         Returns true if the instance was persisted (saved) in its old
         state.
@@ -163,10 +180,12 @@ class ChangesMixin(object):
             >>> user.was_persisted()
             True
         """
-        pk_name = self._meta.pk.name
-        return bool(self.old_state()[pk_name])
+        pk_field = self._meta.pk
+        if pk_field is None:
+            return False
+        return bool(self.old_state()[pk_field.name])
 
-    def is_persisted(self):
+    def is_persisted(self) -> bool:
         """
         Returns true if the instance is persisted (saved) in its current
         state.
@@ -185,22 +204,22 @@ class ChangesMixin(object):
         """
         return bool(self.pk)
 
-    def old_instance(self):
+    def old_instance(self) -> ChangesMixin:
         """
         Returns an instance of this model in its old state.
         """
         return self.__class__(**self.old_state())
 
-    def previous_instance(self):
+    def previous_instance(self) -> ChangesMixin:
         """
         Returns an instance of this model in its previous state.
         """
         return self.__class__(**self.previous_state())
 
 
-def _post_save(sender, instance, **kwargs):
+def _post_save(sender: type[models.Model], instance: ChangesMixin, **kwargs: Any) -> None:
     instance._save_state(new_instance=False, event_type=SAVE)
 
 
-def _post_delete(sender, instance, **kwargs):
+def _post_delete(sender: type[models.Model], instance: ChangesMixin, **kwargs: Any) -> None:
     instance._save_state(new_instance=False, event_type=DELETE)

@@ -2,25 +2,22 @@
 django-model-changes
 ====================
 
-Please note: django-model-changes does not support Python3.0+. A fork is maintained at https://github.com/iansprice/django-model-changes-py3 for Python3.3+ and can be installed via `pip install django-model-changes-py3`. 
+django-model-changes allows you to track the state and changes of a model instance.
 
-django-model-changes allows you to track the state and changes of a model instance:
+**Requirements:** Python 3.14+, Django 5.0-6.x
 
 Quick start
 -----------
 
 1. Install django-model-changes::
 
+    uv add django-model-changes
+
+   Or with pip::
+
     pip install django-model-changes
 
-2. Add "django_model_changes" to your INSTALLED_APPS setting like this::
-
-    INSTALLED_APPS = (
-        ...
-        'django_model_changes',
-    )
-
-3. Add the `ChangesMixin` to your model::
+2. Add the ``ChangesMixin`` to your model::
 
     >>> from django.db import models
     >>> from django_model_changes import ChangesMixin
@@ -28,13 +25,13 @@ Quick start
     >>> class User(ChangesMixin, models.Model):
     >>>     name = models.CharField(max_length=100)
 
-4. Get instance changes::
+3. Get instance changes::
 
     >>> user = User()
     >>> user.name = 'Foo Bar'
     >>> user.save()
 
-    >>> user.name 'I got a new name'
+    >>> user.name = 'I got a new name'
 
     >>> # Get current state
     >>> user.current_state()
@@ -64,10 +61,10 @@ Quick start
     >>> user.is_persisted()
     True
 
-5. Listen for changes::
-        
+4. Listen for changes::
+
    >>> from django_model_changes import post_change
-    
+
    >>> def my_callback(sender, instance, **kwargs):
    >>>     # Do something with previous and current state
    >>>     instance.old_state()
