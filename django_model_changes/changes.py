@@ -13,10 +13,15 @@ if TYPE_CHECKING:
 SAVE = 0
 DELETE = 1
 
+# Track which classes have had signals connected
+_connected_classes: set[type] = set()
 
-class ChangesMixin(models.Model):
+
+class ChangesMixin:
     r"""
     ChangesMixin keeps track of changes for model instances.
+
+    Use with models.Model: ``class MyModel(ChangesMixin, models.Model)``
 
     It allows you to retrieve the following states from an instance:
 
@@ -70,26 +75,32 @@ class ChangesMixin(models.Model):
     """
 
     _states: list[dict[str, Any]]
-
-    class Meta:
-        abstract = True
+    _meta: Options
+    pk: Any
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
+        # Connect signals once per class (on first instantiation)
+        cls = self.__class__
+        if cls not in _connected_classes:
+            _connected_classes.add(cls)
+            # cls is guaranteed to be a Model subclass at runtime since ChangesMixin
+            # must be used with models.Model
+            sender: type[models.Model] = cls  # type: ignore[assignment]
+            signals.post_save.connect(
+                _post_save,
+                sender=sender,
+                dispatch_uid=f"django-changes-{cls.__name__}",
+            )
+            signals.post_delete.connect(
+                _post_delete,
+                sender=sender,
+                dispatch_uid=f"django-changes-{cls.__name__}",
+            )
+
         self._states = []
         self._save_state(new_instance=True)
-
-        signals.post_save.connect(
-            _post_save,
-            sender=self.__class__,
-            dispatch_uid=f"django-changes-{self.__class__.__name__}",
-        )
-        signals.post_delete.connect(
-            _post_delete,
-            sender=self.__class__,
-            dispatch_uid=f"django-changes-{self.__class__.__name__}",
-        )
 
     def _save_state(self, new_instance: bool = False, event_type: str | int = "save") -> None:
         # Pipe the pk on deletes so that a correct snapshot of the current
