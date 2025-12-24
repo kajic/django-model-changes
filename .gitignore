@@ -7,3 +7,4 @@ __pycache__/
 .pyright/
 dist/
 build/
+uv.lock
